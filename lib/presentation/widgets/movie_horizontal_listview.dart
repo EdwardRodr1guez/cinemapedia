@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class MovieHorizontalListview extends StatefulWidget {
@@ -110,7 +111,11 @@ class _MovieHorizontalListviewState extends State<MovieHorizontalListview> {
                                       )),
                                     );
                                   }
-                                  return FadeIn(child: child);
+                                  return GestureDetector(
+                                      onTap: () {
+                                        context.push("/movie/${movie.id}");
+                                      },
+                                      child: FadeIn(child: child));
                                 },
                               ),
                             ),
