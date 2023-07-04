@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/presentation/providers/actors/actors_by_movie_provider.dart';
 import 'package:cinemapedia/presentation/providers/movies/movies_detail_provider.dart';
+import 'package:cinemapedia/presentation/providers/storage/local_storage_repository_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -52,13 +53,43 @@ class MovieScreenState extends ConsumerState<MovieScreen> {
   }
 }
 
-class _CustomsliverAppbar extends StatelessWidget {
+final isFavoriteProvider = FutureProvider.family.autoDispose((
+  ref,
+  int movieId,
+) async {
+  final localStorageRepository = ref.watch(localStorageRepositoryProvider);
+
+  return localStorageRepository.isMovieFavorite(movieId);
+});
+
+class _CustomsliverAppbar extends ConsumerWidget {
   final Movie movie;
   const _CustomsliverAppbar({required this.movie});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AsyncValue isFavoriteFuture = ref.watch(isFavoriteProvider(movie.id));
     return SliverAppBar(
+      actions: [
+        IconButton(
+            onPressed: () async {
+              ref.watch(localStorageRepositoryProvider).toggleFavorite(movie);
+            },
+            icon: isFavoriteFuture.when(
+                data: (data) {
+                  ref.invalidate(isFavoriteProvider(movie.id));
+                  return data
+                      ? const Icon(Icons.favorite_rounded, color: Colors.red)
+                      : const Icon(Icons.favorite_border);
+                },
+                error: (error, stackTrace) {
+                  throw UnimplementedError();
+                },
+                loading: () => const CircularProgressIndicator(
+                      strokeWidth: 2,
+                    )))
+        //IconButton(onPressed: (){}, icon: Icon(Icons.favorite_rounded, color: Colors.red))
+      ],
       backgroundColor: Colors.black,
       expandedHeight: MediaQuery.of(context).size.height * 0.7,
       foregroundColor: Colors.white,
@@ -98,7 +129,7 @@ class _CustomsliverAppbar extends StatelessWidget {
               child: DecoratedBox(
                   decoration: BoxDecoration(
                       gradient: LinearGradient(
-                          begin: Alignment.topLeft,
+                          begin: Alignment.topCenter,
                           stops: [0, 0.3],
                           end: Alignment.bottomCenter,
                           colors: [
