@@ -40,8 +40,29 @@ class FavoritesViewState extends ConsumerState<FavoritesView> {
   Widget build(BuildContext context) {
     log("estoy en favoritos");
     final favoritesMovies = ref.watch(favoriteMoviesProvider).values.toList();
-    return Scaffold(
+    return Center(
+      child: SizedBox(
+        //height: 500 * 0,
+        child: Column(
+          children: [
+            Flexible(
+                child: MovieMasonry(
+                    loadNextPage: loadNextPage, movies: favoritesMovies)),
+          ],
+        ),
+      ),
+    );
+    /*Column(
+      children: [
+        SizedBox(
+            height: 300,
+            child: MovieMasonry(
+                loadNextPage: loadNextPage, movies: favoritesMovies))
+      ],
+    );*/
+
+    /*Scaffold(
         body:
-            MovieMasonry(loadNextPage: loadNextPage, movies: favoritesMovies));
+            MovieMasonry(loadNextPage: loadNextPage, movies: favoritesMovies));*/
   }
 }
